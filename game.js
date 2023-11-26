@@ -1,8 +1,22 @@
-const { init, GameLoop, Sprite, initPointer, track, go } = window.crisp;
+const { init, GameLoop, Sprite, initPointer, track, go, text } = window.crisp;
 
 // ゲームの設定
 const config = {
-    // ...（前回のコードをそのまま使用）
+    width: 640,
+    height: 480,
+    parent: "game-container",
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update,
+    },
 };
 
 // ゲームの初期化
@@ -36,18 +50,6 @@ function setup() {
             value: "Click to Start Game",
         },
     ]);
-
-    // プレイヤーの作成
-    player = add([
-        sprite("player"),
-        pos(maze.width / 2, maze.height / 2),
-        origin("center"),
-        scale(0.8),
-        "player",
-    ]);
-
-    // 迷路の作成
-    maze = addMaze(mazeConfig);
 
     // タッチ入力の初期化
     initPointer();
@@ -86,6 +88,7 @@ function update() {
     }
 }
 
+
 // リソースの読み込み処理
 function preload() {
     // ...（前回のコードをそのまま使用）
@@ -95,14 +98,80 @@ function preload() {
 function create() {
     // ゲームの初期化処理を呼び出す
     setup();
+
+    // タッチ入力の追加
+    startScreen.clicks(() => {
+        startGame();
+    });
 }
 
 // 迷路の作成処理
 function addMaze(config) {
-    // ...（前回のコードをそのまま使用）
+    const maze = add([
+        rect(config.width, config.height),
+        layer("maze"),
+        pos(config.x, config.y),
+        area(config.width, config.height),
+        solid(),
+    ]);
+
+    // 外側の壁を作成
+    const outerWalls = add([
+        rect(config.width + config.wallThickness * 2, config.wallThickness),
+        rect(config.wallThickness, config.height),
+        rect(config.width + config.wallThickness * 2, config.wallThickness),
+        rect(config.wallThickness, config.height),
+        area(config.width + config.wallThickness * 2, config.wallThickness),
+        area(config.wallThickness, config.height),
+        area(config.width + config.wallThickness * 2, config.wallThickness),
+        area(config.wallThickness, config.height),
+        pos(config.x - config.wallThickness, config.y - config.wallThickness),
+        layer("maze"),
+        solid(),
+    ]);
+
+    // 内側の壁をランダムに作成
+    for (let i = 0; i < config.innerWalls; i++) {
+        const wall = add([
+            rect(config.wallThickness, rand(config.minWallHeight, config.maxWallHeight)),
+            rect(rand(config.minWallWidth, config.maxWallWidth), config.wallThickness),
+            area(config.wallThickness, rand(config.minWallHeight, config.maxWallHeight)),
+            area(rand(config.minWallWidth, config.maxWallWidth), config.wallThickness),
+            pos(config.x, config.y),
+            layer("maze"),
+            solid(),
+        ]);
+
+        wall.moveTo(rand(config.x, config.x + config.width - config.wallThickness), rand(config.y, config.y + config.height - config.wallThickness));
+    }
+
+    // プレイヤーの初期位置に開始地点を追加
+    const start = add([
+        rect(config.wallThickness, config.wallThickness),
+        pos(config.x, config.y),
+        area(config.wallThickness, config.wallThickness),
+        layer("maze"),
+        "start",
+    ]);
+
+    // ゴールの位置に終了地点を追加
+    const goal = add([
+        rect(config.wallThickness, config.wallThickness),
+        pos(config.x + config.width - config.wallThickness, config.y + config.height - config.wallThickness),
+        area(config.wallThickness, config.wallThickness),
+        layer("maze"),
+        "goal",
+    ]);
+
+    return maze;
 }
+
 
 // ゲームを開始する関数
 function startGame() {
     startScreen.text = "";
+    startScreen.action(() => {
+        startScreen.use();
+    });
+    startScreen.clicked = false;
 }
