@@ -40,43 +40,52 @@
         }
 
         function create() {
-    // 四角形を表示
+    // プレイヤーを表示
     player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
 
-    // 迷路の壁を作成
+    // 物理エンジンを有効にする
+    this.physics.world.enable(player);
+
+    // プレイヤーに物理エンジンのボディを追加
+    player.body.setCollideWorldBounds(true);
+
+    // 迷路の壁を表示
     var wall = this.add.rectangle(200, 200, 100, 20, 0xff0000);
 
+    // 物理エンジンを有効にする
+    this.physics.world.enable(wall);
+
     // プレイヤーと壁の衝突検知を設定
-    this.physics.add.existing(player);
-    this.physics.add.existing(wall);
     this.physics.add.collider(player, wall);
 
+    // キー入力を処理するイベントリスナーを追加
     this.input.keyboard.on('keydown', function (event) {
         handleKeyPress(event.key);
     });
 }
 
+function update() {
+    // フレームごとの更新処理
+}
 
-        function update() {
-            // フレームごとの更新処理
-        }
+function handleKeyPress(key) {
+    // キー入力に基づいてプレイヤーの移動処理を追加
+    switch (key) {
+        case 'ArrowUp':
+            player.y -= 10;
+            break;
+        case 'ArrowDown':
+            player.y += 10;
+            break;
+        case 'ArrowLeft':
+            player.x -= 10;
+            break;
+        case 'ArrowRight':
+            player.x += 10;
+            break;
+    }
+}
 
-        function handleKeyPress(key) {
-            switch (key) {
-                case 'ArrowUp':
-                    player.y -= 10;
-                    break;
-                case 'ArrowDown':
-                    player.y += 10;
-                    break;
-                case 'ArrowLeft':
-                    player.x -= 10;
-                    break;
-                case 'ArrowRight':
-                    player.x += 10;
-                    break;
-            }
-        }
     </script>
 </body>
 </html>
