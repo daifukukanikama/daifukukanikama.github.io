@@ -154,11 +154,16 @@ function addMaze(config) {
 }
 
 
-// ゲームを開始する関数
 function startGame() {
+    // startScreenが初期化されていない場合、初期化を行う
+    if (!startScreen) {
+        setup();
+    }
+
     startScreen.text = "";
     startScreen.action(() => {
         startScreen.use();
     });
     startScreen.clicked = false;
 }
+
