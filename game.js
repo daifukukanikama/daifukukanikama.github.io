@@ -38,18 +38,13 @@ const keys = {
     down: "DOWN",
 };
 
-// ゲームの開始処理
 function setup() {
     // スタート画面の作成
-    startScreen = add([
-        text("Click to Start Game", 24),
-        pos(width() / 2, height() / 2),
-        origin("center"),
-        layer("ui"),
-        {
-            value: "Click to Start Game",
-        },
-    ]);
+    startScreen = text("Click to Start Game", 24);
+    startScreen.pos(width() / 2, height() / 2);
+    startScreen.origin("center");
+    startScreen.layer("ui");
+    startScreen.value = "Click to Start Game";
 
     // キー入力の追加
     keyPress("space", () => {
