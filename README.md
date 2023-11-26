@@ -1,0 +1,1 @@
+# daifukukanikama.github.io
