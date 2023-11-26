@@ -1,120 +1,116 @@
 const { init, GameLoop, Sprite, initPointer, track } = window.crisp;
 
-const mazeSize = 10; // 迷路のサイズ
-const tileSize = 40; // タイルのサイズ
-const playerSpeed = 2;
+// ゲームの設定
+const config = {
+    width: 640,
+    height: 480,
+    parent: "game-container",
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update,
+    },
+};
 
+// ゲームの初期化
+init(config);
+
+// プレイヤーと迷路
 let player;
-let maze = [];
+let maze;
 
+// プレイヤーの速度
+const playerSpeed = 200;
+
+// 迷路の設定
+const mazeConfig = {
+    rows: 9,
+    cols: 9,
+    cellSize: 64,
+    playerSize: 40,
+};
+
+// キーの設定
+const keys = {
+    left: "LEFT",
+    right: "RIGHT",
+    up: "UP",
+    down: "DOWN",
+};
+
+// ゲームの開始処理
 function setup() {
-    init();
+    // プレイヤーの作成
+    player = add([
+        sprite("player"),
+        pos(maze.width / 2, maze.height / 2),
+        origin("center"),
+        scale(0.8),
+        "player",
+    ]);
+
+    // 迷路の作成
+    maze = addMaze(mazeConfig);
+
+    // タッチ入力の初期化
     initPointer();
 
-    // プレイヤーの初期化
-    player = new Sprite({
-        x: tileSize / 2,
-        y: tileSize / 2,
-        width: 20,
-        height: 20,
-        color: '#00F',
-        shape: 'circle',
+    // タッチ入力の追加
+    player.action(() => {
+        player.move(120);
     });
 
-    // 迷路の初期化
-    generateMaze();
-
-    // ゲームループの設定
-    GameLoop(gameLoop).start();
+    // キー入力の追加
+    keyDown(keys.left, () => {
+        player.move(-playerSpeed, 0);
+    });
+    keyDown(keys.right, () => {
+        player.move(playerSpeed, 0);
+    });
+    keyDown(keys.up, () => {
+        player.move(0, -playerSpeed);
+    });
+    keyDown(keys.down, () => {
+        player.move(0, playerSpeed);
+    });
 }
 
-function generateMaze() {
-    // 初期化
-    maze = [];
-
-    for (let i = 0; i < mazeSize; i++) {
-        maze[i] = [];
-        for (let j = 0; j < mazeSize; j++) {
-            maze[i][j] = Math.random() > 0.7 ? 1 : 0; // 70%の確率で通路（0）、30%で壁（1）
-        }
-    }
-
-    // スタートとゴールの設定
-    maze[0][0] = 0; // スタート地点
-    maze[mazeSize - 1][mazeSize - 1] = 0; // ゴール地点
-
-    // 迷路生成
-    dfs(0, 0);
-}
-
-function dfs(x, y) {
-    // Depth First Searchアルゴリズムに基づく迷路生成
-    const directions = [
-        { dx: 0, dy: -2 },
-        { dx: 2, dy: 0 },
-        { dx: 0, dy: 2 },
-        { dx: -2, dy: 0 },
-    ];
-
-    directions.sort(() => Math.random() - 0.5);
-
-    for (const dir of directions) {
-        const nx = x + dir.dx;
-        const ny = y + dir.dy;
-
-        if (nx >= 0 && ny >= 0 && nx < mazeSize && ny < mazeSize && maze[nx][ny] === 1) {
-            maze[nx][ny] = 0;
-            maze[x + dir.dx / 2][y + dir.dy / 2] = 0;
-            dfs(nx, ny);
-        }
-    }
-}
-
-function gameLoop() {
-    update();
-    draw();
-}
-
+// フレームごとの更新処理
 function update() {
-    player.update();
-
-    // プレイヤーの移動
-    if (track(player)) {
-        const dx = player.x - player.prevX;
-        const dy = player.y - player.prevY;
-
-        if (dx !== 0 || dy !== 0) {
-            const nextX = Math.round(player.x / tileSize);
-            const nextY = Math.round(player.y / tileSize);
-
-            if (nextX >= 0 && nextX < mazeSize && nextY >= 0 && nextY < mazeSize && maze[nextX][nextY] === 0) {
-                player.x = nextX * tileSize + tileSize / 2;
-                player.y = nextY * tileSize + tileSize / 2;
-            }
-        }
+    // プレイヤーが迷路に触れたら終了
+    if (player.isColliding(maze)) {
+        go("gameOver", scoreLabel.value);
     }
 }
 
-function draw() {
-    drawMaze();
-    player.draw();
+// リソースの読み込み処理
+function preload() {
+    loadSprite("player", "path/to/player/image.png");
+    // 他のリソースの読み込み処理を追加することができます
 }
 
-function drawMaze() {
-    for (let i = 0; i < mazeSize; i++) {
-        for (let j = 0; j < mazeSize; j++) {
-            if (maze[i][j] === 1) {
-                // 壁
-                drawWall(i * tileSize, j * tileSize);
-            }
-        }
-    }
+// ゲーム画面の構築処理
+function create() {
+    // ゲームの初期化処理を呼び出す
+    setup();
 }
 
-function drawWall(x, y) {
-    // 壁を描画
-    window.crisp.drawRect(x, y, tileSize, tileSize, '#000');
-}
+// 迷路の作成処理
+function addMaze(config) {
+    const maze = add([
+        rect(config.cols * config.cellSize, config.rows * config.cellSize),
+        pos(0, 0),
+        layer("maze"),
+    ]);
 
-// ゲーム開始
-setup();
+    // 迷路の構造を作成するロジックを追加することができます
+
+    return maze;
+}
