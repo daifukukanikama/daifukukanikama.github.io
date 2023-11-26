@@ -40,13 +40,22 @@
         }
 
         function create() {
-            // 四角形を表示
-            player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
+    // 四角形を表示
+    player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
 
-            this.input.keyboard.on('keydown', function (event) {
-                handleKeyPress(event.key);
-            });
-        }
+    // 迷路の壁を作成
+    var wall = this.add.rectangle(200, 200, 100, 20, 0xff0000);
+
+    // プレイヤーと壁の衝突検知を設定
+    this.physics.add.existing(player);
+    this.physics.add.existing(wall);
+    this.physics.add.collider(player, wall);
+
+    this.input.keyboard.on('keydown', function (event) {
+        handleKeyPress(event.key);
+    });
+}
+
 
         function update() {
             // フレームごとの更新処理
