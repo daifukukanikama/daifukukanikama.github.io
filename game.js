@@ -1,169 +1,77 @@
-const { init, GameLoop, Sprite, initPointer, track, go, text } = window.crisp;
-
-// ゲームの設定
-const config = {
+var config = {
+    type: Phaser.AUTO,
     width: 640,
     height: 480,
-    parent: "game-container",
-    physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 0 },
-            debug: false,
-        },
-    },
     scene: {
         preload: preload,
         create: create,
-        update: update,
-    },
+        update: update
+    }
 };
 
-// ゲームの初期化
-init(config);
+var game = new Phaser.Game(config);
+var player;
+var maze;
+var gameOverText;
 
-// プレイヤーと迷路
-let player;
-let maze;
-let startScreen;
-
-// プレイヤーの速度
-const playerSpeed = 200;
-
-// キーの設定
-const keys = {
-    left: "LEFT",
-    right: "RIGHT",
-    up: "UP",
-    down: "DOWN",
-};
-
-function setup() {
-    // スタート画面の作成
-    startScreen = text("Click to Start Game", 24);
-    startScreen.pos(width() / 2, height() / 2);
-    startScreen.origin("center");
-    startScreen.layer("ui");
-    startScreen.value = "Click to Start Game";
-
-    // キー入力の追加
-    keyPress("space", () => {
-        startGame();
-    });
-}
-
-// フレームごとの更新処理
-function update() {
-    if (startScreen.isClicked()) {
-        // スタート画面がクリックされたらゲームを開始
-        startScreen.text = "";
-        startScreen.action(() => {
-            startScreen.use();
-        });
-        startScreen.clicked = false;
-    }
-
-    // ゲームのロジックを追加する（前回のコードをそのまま使用）
-
-    // プレイヤーが迷路に触れたら終了
-    if (player.isColliding(maze)) {
-        go("gameOver", scoreLabel.value);
-    }
-}
-
-
-// リソースの読み込み処理
 function preload() {
-    // ...（前回のコードをそのまま使用）
+    // ここに画像の読み込みなどの準備処理を追加
 }
 
-// ゲーム画面の構築処理
 function create() {
-    // ゲームの初期化処理を呼び出す
-    setup();
+    // プレイヤーを作成
+    player = this.add.sprite(100, 100, 'player'); // 'player' は読み込んだプレイヤーの画像名に変更する
 
-    // タッチ入力の追加
-    startScreen.clicks(() => {
-        startGame();
-    });
-    // スペースキーでもゲームを開始できるようにする
-    keyPress("space", () => {
-        startGame();
+    // 迷路を作成
+    maze = addMaze(this);
+
+    // ゲームオーバーテキストを作成して非表示にする
+    gameOverText = this.add.text(200, 200, 'Game Over', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
+    gameOverText.visible = false;
+
+    // キー入力のイベントリスナーを追加
+    this.input.keyboard.on('keydown', function (event) {
+        handleKeyPress(event.key);
     });
 }
 
-// 迷路の作成処理
-function addMaze(config) {
-    const maze = add([
-        rect(config.width, config.height),
-        layer("maze"),
-        pos(config.x, config.y),
-        area(config.width, config.height),
-        solid(),
-    ]);
-
-    // 外側の壁を作成
-    const outerWalls = add([
-        rect(config.width + config.wallThickness * 2, config.wallThickness),
-        rect(config.wallThickness, config.height),
-        rect(config.width + config.wallThickness * 2, config.wallThickness),
-        rect(config.wallThickness, config.height),
-        area(config.width + config.wallThickness * 2, config.wallThickness),
-        area(config.wallThickness, config.height),
-        area(config.width + config.wallThickness * 2, config.wallThickness),
-        area(config.wallThickness, config.height),
-        pos(config.x - config.wallThickness, config.y - config.wallThickness),
-        layer("maze"),
-        solid(),
-    ]);
-
-    // 内側の壁をランダムに作成
-    for (let i = 0; i < config.innerWalls; i++) {
-        const wall = add([
-            rect(config.wallThickness, rand(config.minWallHeight, config.maxWallHeight)),
-            rect(rand(config.minWallWidth, config.maxWallWidth), config.wallThickness),
-            area(config.wallThickness, rand(config.minWallHeight, config.maxWallHeight)),
-            area(rand(config.minWallWidth, config.maxWallWidth), config.wallThickness),
-            pos(config.x, config.y),
-            layer("maze"),
-            solid(),
-        ]);
-
-        wall.moveTo(rand(config.x, config.x + config.width - config.wallThickness), rand(config.y, config.y + config.height - config.wallThickness));
+function update() {
+    // プレイヤーと迷路の衝突判定
+    if (checkCollision(player, maze)) {
+        gameOverText.visible = true;
+        // ゲームオーバー時の処理を追加
     }
-
-    // プレイヤーの初期位置に開始地点を追加
-    const start = add([
-        rect(config.wallThickness, config.wallThickness),
-        pos(config.x, config.y),
-        area(config.wallThickness, config.wallThickness),
-        layer("maze"),
-        "start",
-    ]);
-
-    // ゴールの位置に終了地点を追加
-    const goal = add([
-        rect(config.wallThickness, config.wallThickness),
-        pos(config.x + config.width - config.wallThickness, config.y + config.height - config.wallThickness),
-        area(config.wallThickness, config.wallThickness),
-        layer("maze"),
-        "goal",
-    ]);
-
-    return maze;
 }
 
+function addMaze(scene) {
+    // ここに迷路の作成処理を追加
+    var graphics = scene.add.graphics();
+    graphics.fillStyle(0xffffff, 1);
+    graphics.fillRect(100, 200, 200, 50); // 仮の迷路。実際の迷路の描画方法に合わせて変更する
+    return graphics;
+}
 
-function startGame() {
-    // startScreenが初期化されていない場合、初期化を行う
-    if (!startScreen) {
-        setup();
+function checkCollision(player, maze) {
+    // ここに衝突判定の処理を追加
+    var playerBounds = player.getBounds();
+    var mazeBounds = maze.getBounds();
+    return Phaser.Geom.Intersects.RectangleToRectangle(playerBounds, mazeBounds);
+}
+
+function handleKeyPress(key) {
+    // キー入力に基づいたプレイヤーの移動処理を追加
+    switch (key) {
+        case 'ArrowUp':
+            player.y -= 10;
+            break;
+        case 'ArrowDown':
+            player.y += 10;
+            break;
+        case 'ArrowLeft':
+            player.x -= 10;
+            break;
+        case 'ArrowRight':
+            player.x += 10;
+            break;
     }
-
-    startScreen.text = "";
-    startScreen.action(() => {
-        startScreen.use();
-    });
-    startScreen.clicked = false;
 }
-
