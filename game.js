@@ -51,21 +51,9 @@ function setup() {
         },
     ]);
 
-    // タッチ入力の初期化
-    initPointer();
-
     // キー入力の追加
-    keyDown(keys.left, () => {
-        player.move(-playerSpeed, 0);
-    });
-    keyDown(keys.right, () => {
-        player.move(playerSpeed, 0);
-    });
-    keyDown(keys.up, () => {
-        player.move(0, -playerSpeed);
-    });
-    keyDown(keys.down, () => {
-        player.move(0, playerSpeed);
+    keyPress("space", () => {
+        startGame();
     });
 }
 
@@ -101,6 +89,10 @@ function create() {
 
     // タッチ入力の追加
     startScreen.clicks(() => {
+        startGame();
+    });
+    // スペースキーでもゲームを開始できるようにする
+    keyPress("space", () => {
         startGame();
     });
 }
