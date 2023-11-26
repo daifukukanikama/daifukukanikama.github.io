@@ -3,39 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Game</title>
+    <title>Phaser Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <style>
         body {
-            text-align: center;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
         }
         canvas {
-            border: 1px solid #000;
-            display: block;
-            margin: 20px auto;
-        }
-        #start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
+            border: 1px solid #fff;
         }
     </style>
 </head>
 <body>
-    <div id="start-screen" onclick="startGame()">
-        Click to Start Game
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!-- Phaserを読み込む -->
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-<script src="game.js"></script>
+    <script>
+        var config = {
+            type: Phaser.AUTO,
+            width: 640,
+            height: 480,
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        var game = new Phaser.Game(config);
+        var player;
+
+        function preload() {
+            // 画像を使わないので、preload処理は空にする
+        }
+
+        function create() {
+            // 四角形を表示
+            player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
+
+            this.input.keyboard.on('keydown', function (event) {
+                handleKeyPress(event.key);
+            });
+        }
+
+        function update() {
+            // フレームごとの更新処理
+        }
+
+        function handleKeyPress(key) {
+            switch (key) {
+                case 'ArrowUp':
+                    player.y -= 10;
+                    break;
+                case 'ArrowDown':
+                    player.y += 10;
+                    break;
+                case 'ArrowLeft':
+                    player.x -= 10;
+                    break;
+                case 'ArrowRight':
+                    player.x += 10;
+                    break;
+            }
+        }
+    </script>
 </body>
 </html>
