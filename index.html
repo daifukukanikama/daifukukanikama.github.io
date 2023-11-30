@@ -40,12 +40,42 @@
         }
 
         function create() {
+            // 物理エンジンを有効にする
+            this.physics.world.enable(this);
+
             // 四角形を表示
             player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
+            this.physics.add.existing(player);
+
+            // プレイヤーに物理エンジンのボディを追加
+            player.body.setCollideWorldBounds(true);
+
+            // キー入力を処理するイベントリスナーを追加
+            this.input.keyboard.on('keydown', function (event) {
+                handleKeyPress(event.key);
+            });
         }
 
         function update() {
             // フレームごとの更新処理
+        }
+
+        function handleKeyPress(key) {
+            // キー入力に基づいてプレイヤーの速度を設定
+            switch (key) {
+                case 'ArrowUp':
+                    player.body.setVelocityY(-100);
+                    break;
+                case 'ArrowDown':
+                    player.body.setVelocityY(100);
+                    break;
+                case 'ArrowLeft':
+                    player.body.setVelocityX(-100);
+                    break;
+                case 'ArrowRight':
+                    player.body.setVelocityX(100);
+                    break;
+            }
         }
     </script>
 </body>
