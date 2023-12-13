@@ -7,8 +7,92 @@
 </head>
 <body>
     <script>
-        // ここにJavaScriptのソースコードを書くか、外部ファイルとして読み込む
-        // 例: <script src="game.js"></script>
+        title = "遺跡の謎解き";
+
+description = `
+[タップ] アクション実行
+`;
+
+characters = [
+  // 探検家のキャラクター
+  `
+  llll
+  l  l
+ llll
+l    l
+lllll
+  l
+  `,
+  // 敵キャラクターやアイテム
+  `
+  ll
+ l  l
+llll
+l  l
+ ll 
+  `,
+  // ...
+];
+
+options = {
+  isPlayingBgm: true,
+  isReplayEnabled: true,
+  seed: 9,
+};
+
+/** @type {{x: number, y: number, vy: number}} */
+let player;
+
+/** @type {{pos: Vector, vx: number, vy: number, type: string}[]} */
+let enemies;
+/** @type {number} */
+let nextEnemyTicks;
+
+function update() {
+  if (!ticks) {
+    player = { x: 50, y: 90, vy: 0 };
+    enemies = [];
+    nextEnemyTicks = 0;
+  }
+
+  if (input.isJustPressed) {
+    player.vy = -1.5 * sqrt(difficulty);
+  }
+  player.vy += 0.1;
+  player.y += player.vy;
+  player.y = clamp(player.y, 0, 90);
+  color("black");
+  char("a", player.x, player.y);
+
+  nextEnemyTicks--;
+  if (nextEnemyTicks < 0) {
+    const type = rnd() < 0.5 ? "a" : "b";
+    enemies.push({ 
+      pos: vec(rnd(10, 90), 0), 
+      vx: rnd(0.5, 1.5) * (rnd() < 0.5 ? 1 : -1), 
+      vy: rnd(0.5, 1.5), 
+      type 
+    });
+    nextEnemyTicks = rnd(60, 120);
+  }
+
+  remove(enemies, (e) => {
+    e.pos.x += e.vx;
+    e.pos.y += e.vy;
+    color("red");
+    char(e.type, e.pos);
+
+    if (char("a", player.x, player.y).isColliding.char[e.type]) {
+      play("explosion");
+      end();
+    }
+
+    return e.pos.y > 99 || e.pos.x < 0 || e.pos.x > 99;
+  });
+
+  // スコアの加算やサウンドエフェクトの追加など...
+}
+
     </script>
 </body>
 </html>
