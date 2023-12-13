@@ -1,82 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phaser Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #222;
-        }
-        canvas {
-            border: 1px solid #fff;
-        }
-    </style>
+    <title>遺跡の謎解きゲーム</title>
+    <!-- crisp-game-libのスクリプトを読み込む -->
+    <script src="https://abagames.github.io/crisp-game-lib/dist/crisp-game-lib.js"></script>
 </head>
 <body>
     <script>
-        var config = {
-            type: Phaser.AUTO,
-            width: 640,
-            height: 480,
-            scene: {
-                preload: preload,
-                create: create,
-                update: update
-            }
-        };
-
-        var game = new Phaser.Game(config);
-        var player;
-
-        function preload() {
-            // 画像を使わないので、preload処理は空にする
-        }
-
-        function create() {
-            // 物理エンジンを有効にする
-            this.physics.world.enable(this);
-
-            // 四角形を表示
-            player = this.add.rectangle(100, 100, 50, 50, 0x00ff00);
-            this.physics.add.existing(player);
-
-            // プレイヤーに物理エンジンのボディを追加
-            player.body.setCollideWorldBounds(true);
-
-            // キー入力を処理するイベントリスナーを追加
-            this.input.keyboard.on('keydown', function (event) {
-                handleKeyPress(event.key);
-            });
-        }
-
-        function update() {
-            // フレームごとの更新処理
-        }
-
-        function handleKeyPress(key) {
-            // キー入力に基づいてプレイヤーの速度を設定
-            switch (key) {
-                case 'ArrowUp':
-                    player.body.setVelocityY(-100);
-                    break;
-                case 'ArrowDown':
-                    player.body.setVelocityY(100);
-                    break;
-                case 'ArrowLeft':
-                    player.body.setVelocityX(-100);
-                    break;
-                case 'ArrowRight':
-                    player.body.setVelocityX(100);
-                    break;
-            }
-        }
+        // ここにJavaScriptのソースコードを書くか、外部ファイルとして読み込む
+        // 例: <script src="game.js"></script>
     </script>
 </body>
 </html>
